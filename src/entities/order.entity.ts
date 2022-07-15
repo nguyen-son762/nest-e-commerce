@@ -1,15 +1,29 @@
 import { orderStatus } from '@/types/orderStatus';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Product } from './product.entity';
+import { ProductDetail } from './productDetail.entity';
 import { User } from './user.entity';
 @Entity()
 export class Order {
   @PrimaryGeneratedColumn()
   order_id: number;
+
   @Column()
   status: orderStatus;
+
   @Column()
   amount: number;
+
+  @Column({
+    nullable: true,
+  })
+  email: string;
   @Column({
     nullable: true,
   })
@@ -18,12 +32,18 @@ export class Order {
     nullable: true,
   })
   phonenumber: string;
-  @ManyToOne(() => User, (user) => user.user_id)
+
+  @ManyToOne(() => User, (user) => user.user_id, { nullable: true })
+  @JoinColumn()
   user: User;
-  @ManyToOne(() => Product, (product) => product.product_id, { primary: true })
-  product: Product;
+
+  @ManyToOne(() => ProductDetail, (product) => product.product_detail_id)
+  @JoinColumn()
+  productDetail: ProductDetail;
+
   @Column({ nullable: true, default: () => 'NOW()' })
   created_at: Date;
+
   @Column({ nullable: true, default: () => 'NOW()' })
   updated_at: Date;
 }

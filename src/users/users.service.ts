@@ -35,7 +35,7 @@ export class UsersService {
         password,
         phonenumber,
       });
-      return this.usersRepository.save(newUser);
+      return await this.usersRepository.save(newUser);
     } catch (err) {
       throw errException(
         {

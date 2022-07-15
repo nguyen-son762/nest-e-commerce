@@ -1,10 +1,10 @@
 import { Category } from '@/entities/category.entity';
 import { errException } from '@/helpers/err-exception';
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { categoryResponseDef } from './types/category.type';
 
 @Injectable()
 export class CategoriesService {
@@ -16,10 +16,12 @@ export class CategoriesService {
     return 'This action adds a new category';
   }
 
-  async findAll() {
+  async findAll(): Promise<HttpException | categoryResponseDef> {
     try {
       const categories = await this.categoriesRepository.find();
-      return categories;
+      return {
+        data: categories,
+      };
     } catch (err) {
       throw errException(
         {
@@ -29,17 +31,5 @@ export class CategoriesService {
         HttpStatus.BAD_REQUEST,
       );
     }
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
-  }
-
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} category`;
   }
 }
