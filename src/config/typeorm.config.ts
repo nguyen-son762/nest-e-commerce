@@ -12,7 +12,7 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
     return {
       type: 'mysql',
       host: ENV.HOST_MYSQL,
-      port:ENV.PORT_MYSQL,
+      port: ENV.PORT_MYSQL,
       username: ENV.DATABASE_MYSQL_USER,
       database: ENV.DATABASE_NAME,
       password: ENV.DATABASE_MYSQL_PASSWORD,
@@ -30,7 +30,7 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
 export const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'mysql',
   host: ENV.HOST_MYSQL,
-  port:ENV.PORT_MYSQL,
+  port: ENV.PORT_MYSQL,
   username: ENV.DATABASE_MYSQL_USER,
   database: ENV.DATABASE_NAME,
   password: ENV.DATABASE_MYSQL_PASSWORD,
