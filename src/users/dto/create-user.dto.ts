@@ -20,7 +20,9 @@ export class CreateUserDto {
   email: string;
 
   @IsString()
-  @Matches(/(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/)
+  @Matches(
+    /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/,
+  )
   phonenumber: string;
 
   @IsString()

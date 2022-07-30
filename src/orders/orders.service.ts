@@ -1,5 +1,5 @@
 import { ProductDetail } from './../entities/productDetail.entity';
-import { Order, User, Product } from '@/entities';
+import { Order, User } from '@/entities';
 import { errException } from '@/helpers/err-exception';
 import { enumOrderStatus } from '@/types/orderStatus';
 import { HttpStatus, Injectable, HttpException } from '@nestjs/common';
@@ -8,6 +8,8 @@ import { Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { messageRes } from '@/common/message';
 import { CheckoutOrderDto } from './dto/checkout-order.dto';
+import { cartResponseDef } from './types/order.types';
+import { CreateCartDto } from './dto/create-cart-dto';
 
 @Injectable()
 export class OrdersService {
@@ -34,10 +36,10 @@ export class OrdersService {
 
       const user = await this.usersRepository.findOne(user_id);
       if (!user) {
-        return errException(
+        throw errException(
           {
             status: HttpStatus.NOT_FOUND,
-            msg: messageRes.USER_INVALID,
+            error: messageRes.USER_INVALID,
           },
           HttpStatus.NOT_FOUND,
         );
@@ -47,10 +49,10 @@ export class OrdersService {
         product_detail_id,
       );
       if (!productDetail) {
-        return errException(
+        throw errException(
           {
             status: HttpStatus.NOT_FOUND,
-            msg: messageRes.PRODUCT_DETAIL_INVALID,
+            error: messageRes.PRODUCT_DETAIL_INVALID,
           },
           HttpStatus.NOT_FOUND,
         );
@@ -62,17 +64,17 @@ export class OrdersService {
         address,
         phonenumber,
         user,
-        status: enumOrderStatus.ORDERING,
+        status: enumOrderStatus.ORDERED,
         productDetail,
       });
       await this.ordersRepository.save(order);
 
       return true;
-    } catch (err) {
+    } catch (error) {
       throw errException(
         {
           status: HttpStatus.BAD_REQUEST,
-          msg: err.message,
+          error,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -98,7 +100,7 @@ export class OrdersService {
           return errException(
             {
               status: HttpStatus.NOT_FOUND,
-              msg: messageRes.ORDER_NOT_FOUND,
+              error: messageRes.ORDER_NOT_FOUND,
             },
             HttpStatus.NOT_FOUND,
           );
@@ -107,7 +109,7 @@ export class OrdersService {
           return errException(
             {
               status: HttpStatus.BAD_REQUEST,
-              msg: messageRes.ORDER_IS_PALACED,
+              error: messageRes.ORDER_IS_PALACED,
             },
             HttpStatus.BAD_REQUEST,
           );
@@ -120,7 +122,7 @@ export class OrdersService {
           return errException(
             {
               status: HttpStatus.NOT_FOUND,
-              msg: messageRes.PRODUCT_DETAIL_INVALID,
+              error: messageRes.PRODUCT_DETAIL_INVALID,
             },
             HttpStatus.NOT_FOUND,
           );
@@ -129,7 +131,7 @@ export class OrdersService {
           return errException(
             {
               status: HttpStatus.FAILED_DEPENDENCY,
-              msg: messageRes.AMOUNT_NOT_ENOUGH,
+              error: messageRes.AMOUNT_NOT_ENOUGH,
             },
             HttpStatus.FAILED_DEPENDENCY,
           );
@@ -149,11 +151,87 @@ export class OrdersService {
         });
       }
       return true;
-    } catch (err) {
+    } catch (error) {
       throw errException(
         {
           status: HttpStatus.BAD_REQUEST,
-          msg: err.message,
+          error,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async getCart(req: any): Promise<cartResponseDef | null> {
+    try {
+      const id = req.user.user_id;
+      const cart = await this.ordersRepository.find({
+        relations: [
+          'productDetail',
+          'productDetail.product',
+          'productDetail.size',
+          'productDetail.color',
+        ],
+        where: {
+          user: {
+            user_id: id,
+          },
+        },
+      });
+      return {
+        cart,
+      };
+    } catch (error) {
+      throw errException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async addProductToCart(createCartDto: CreateCartDto) {
+    try {
+      const { user_id, product_detail_id, amount } = createCartDto;
+      const user = await this.usersRepository.findOne(user_id);
+      if (!user) {
+        throw errException(
+          {
+            status: HttpStatus.NOT_FOUND,
+            error: messageRes.USER_INVALID,
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const productDetail = await this.productDetailsRepository.findOne(
+        product_detail_id,
+      );
+      if (!productDetail) {
+        throw errException(
+          {
+            status: HttpStatus.NOT_FOUND,
+            error: messageRes.PRODUCT_DETAIL_INVALID,
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const order = this.ordersRepository.create({
+        amount,
+        user,
+        status: enumOrderStatus.ORDERING,
+        productDetail,
+      });
+      await this.ordersRepository.save(order);
+      return true;
+    } catch (error) {
+      throw errException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error,
         },
         HttpStatus.BAD_REQUEST,
       );

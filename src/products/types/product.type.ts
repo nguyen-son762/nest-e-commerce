@@ -1,25 +1,22 @@
-import { CategoryDef } from '@/categories/types/category.type';
-import { ProductDetailDef } from '@/product-details/types/product-details';
+import { Product } from './../../entities/product.entity';
+
+export type productListResponseDef = {
+  data: Product[];
+  page: number;
+  totalPage: number;
+};
 
 export type productResponseDef = {
-  page: number;
-  data: ProductDef[];
+  data: Product;
 };
 
 export type queryGetProductDef = {
-  page?: number;
-  limit?: number;
-  keyword?: string;
-  type?: number;
-  min_price?: number;
-};
-
-export type ProductDef = {
-  product_id: number;
-  name: string;
-  description: string;
-  price: number;
-  promotion?: number;
-  category: CategoryDef;
-  details: ProductDetailDef[];
+  page?: number | undefined;
+  limit?: number | undefined;
+  keyword?: string | undefined;
+  type?: number | undefined;
+  min_price?: number | undefined;
+  max_price?: number | undefined;
+  orderByName?: string;
+  orderByValue?: string;
 };

@@ -1,13 +1,13 @@
 import { errMessage } from './../types/err-message.type';
 import { HttpException, HttpStatus } from '@nestjs/common';
 export const errException = (
-  { status, msg }: errMessage,
+  { status, error }: errMessage,
   statusCode: HttpStatus,
 ) => {
   return new HttpException(
     {
       status,
-      msg,
+      error,
     },
     statusCode,
   );

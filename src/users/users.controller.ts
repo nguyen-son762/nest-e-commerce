@@ -2,7 +2,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { Controller, Post, Body, HttpException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from '@/entities';
+import { userResponseDef } from './types/user.type';
 
 @Controller('users')
 export class UsersController {
@@ -14,7 +14,9 @@ export class UsersController {
   }
 
   @Post('/login')
-  findOne(@Body() loginUserDto: LoginUserDto): Promise<HttpException | User> {
+  findOne(
+    @Body() loginUserDto: LoginUserDto,
+  ): Promise<HttpException | userResponseDef> {
     return this.usersService.findOne(loginUserDto);
   }
 }

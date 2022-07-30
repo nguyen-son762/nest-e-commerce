@@ -22,11 +22,11 @@ export class CategoriesService {
       return {
         data: categories,
       };
-    } catch (err) {
+    } catch (error) {
       throw errException(
         {
           status: HttpStatus.BAD_REQUEST,
-          msg: err.message,
+          error,
         },
         HttpStatus.BAD_REQUEST,
       );

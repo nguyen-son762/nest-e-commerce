@@ -7,4 +7,5 @@ export const ENV = {
   DATABASE_NAME: process.env.DATABASE_NAME || '',
   HOST_MYSQL: process.env.HOST_MYSQL || 'localhost',
   PORT_MYSQL: Number(process.env.PORT_MYSQL) || 3306,
+  JWT: process.env.JWT_SECRET || 'test',
 };

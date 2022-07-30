@@ -1,12 +1,16 @@
 import { Product } from '@/entities';
 import { errException } from '@/helpers/err-exception';
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository, MoreThanOrEqual, Equal } from 'typeorm';
+import { Like, Repository, Equal } from 'typeorm';
 import { limitProduct } from './constants/product.constant';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { queryGetProductDef } from './types/product.type';
+import {
+  productListResponseDef,
+  productResponseDef,
+  queryGetProductDef,
+} from './types/product.type';
 
 @Injectable()
 export class ProductsService {
@@ -18,25 +22,24 @@ export class ProductsService {
     return 'This action adds a new product';
   }
 
-  async findAll(query: queryGetProductDef) {
+  async findAll(
+    query: queryGetProductDef,
+  ): Promise<HttpException | productListResponseDef> {
     const {
       page = 1,
       limit = limitProduct,
-      keyword = '',
-      type = '',
-      min_price = 0,
+      keyword,
+      type,
+      orderByName,
+      orderByValue,
     } = query;
+
     let searchQuery = {};
+    let orderByQuery = {};
     if (keyword) {
       searchQuery = {
         ...searchQuery,
         name: Like('%' + keyword + '%'),
-      };
-    }
-    if (min_price) {
-      searchQuery = {
-        ...searchQuery,
-        price: MoreThanOrEqual(min_price),
       };
     }
     if (type) {
@@ -45,25 +48,63 @@ export class ProductsService {
         category: Equal(type),
       };
     }
+    if (orderByValue && (orderByName === 'name' || orderByName === 'price')) {
+      orderByQuery[orderByName] = orderByValue.toLocaleUpperCase();
+    } else {
+      orderByQuery = {
+        product_id: 'ASC',
+      };
+    }
     const products = await this.productRepository.find({
-      relations: ['category', 'details', 'details.color', 'details.size'],
+      relations: [
+        'category',
+        'details',
+        'details.color',
+        'details.size',
+        'details.images',
+      ],
+      order: orderByQuery,
       where: searchQuery,
       skip: (page - 1) * limit,
       take: limit,
     });
+    const total = await this.productRepository.count();
+
     return {
       data: products,
       page,
+      totalPage: Math.ceil(total / limit),
     };
   }
 
-  findOne(id: number) {
+  async findOne(id: number): Promise<HttpException | productResponseDef> {
     try {
-    } catch (err) {
+      const product = await this.productRepository.findOne(id, {
+        relations: [
+          'category',
+          'details',
+          'details.color',
+          'details.size',
+          'details.images',
+        ],
+      });
+      if (!product) {
+        throw errException(
+          {
+            status: HttpStatus.NOT_FOUND,
+            error: 'Can not find product',
+          },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      return {
+        data: product,
+      };
+    } catch (error) {
       throw errException(
         {
           status: HttpStatus.BAD_REQUEST,
-          msg: err.message,
+          error,
         },
         HttpStatus.BAD_REQUEST,
       );

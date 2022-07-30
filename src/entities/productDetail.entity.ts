@@ -2,10 +2,12 @@ import {
   Column,
   Entity,
   JoinColumn,
-  OneToOne,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Color } from './color.entity';
+import { Image } from './images.entity';
 import { Product } from './product.entity';
 import { Size } from './size.entity';
 
@@ -14,18 +16,24 @@ export class ProductDetail {
   @PrimaryGeneratedColumn()
   product_detail_id: number;
 
-  @OneToOne(() => Product, (product) => product.product_id)
+  @ManyToOne(() => Product, (product) => product.product_id)
   @JoinColumn()
   product: Product;
 
-  @OneToOne(() => Size, (size) => size.size_id)
+  @ManyToOne(() => Size, (size) => size.size_id)
   @JoinColumn()
   size: Size;
 
-  @OneToOne(() => Color, (color) => color.color_id)
+  @ManyToOne(() => Color, (color) => color.color_id)
   @JoinColumn()
   color: Color;
 
   @Column()
   amount: number;
+
+  @OneToMany(() => Image, (image) => image.productDetail, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  images: Image;
 }

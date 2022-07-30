@@ -6,21 +6,26 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
 import * as csurf from 'csurf';
 import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('Ecommerce')
+    .setDescription('The ecommerce API description')
     .setVersion('1.0')
-    .addTag('cats')
+    .addTag('ecommerce')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   app.useGlobalPipes(new ValidationPipe());
-  app.enableCors();
+  app.enableCors({
+    origin: ['http://localhost:3000'],
+    methods: ['*'],
+    credentials: true,
+  });
   app.useGlobalFilters(new HttpExceptionFilter());
   app.use(cookieParser());
   app.use(
@@ -31,6 +36,7 @@ async function bootstrap() {
       saveUninitialized: false,
     }),
   );
+  app.use(helmet());
   app.use(csurf({ cookie: true }));
   app.use((req: any, res: any, next: any) => {
     const token = req.csrfToken();
@@ -39,6 +45,6 @@ async function bootstrap() {
     next();
   });
 
-  await app.listen(3000);
+  await app.listen(4000);
 }
 bootstrap();

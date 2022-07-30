@@ -12,7 +12,11 @@ import {
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { productResponseDef, queryGetProductDef } from './types/product.type';
+import {
+  productListResponseDef,
+  productResponseDef,
+  queryGetProductDef,
+} from './types/product.type';
 import { Request } from 'express';
 
 @Controller('products')
@@ -27,18 +31,29 @@ export class ProductsController {
   @Get()
   findAll(
     @Req() request: Request,
-  ): Promise<HttpException | productResponseDef> {
-    const { keyword, type, min_price, page = 1 } = request.query;
+  ): Promise<HttpException | productListResponseDef> {
+    const {
+      keyword,
+      type,
+      min_price,
+      page = 1,
+      order_by_name,
+      order_by_value,
+    } = request.query;
     return this.productsService.findAll({
-      keyword: keyword + '',
-      type: Number(type) || 1,
+      keyword,
+      type: Number(type) || undefined,
       min_price: Number(min_price) || 0,
       page: Number(page) || 1,
+      orderByName: order_by_name,
+      orderByValue: order_by_value,
     } as queryGetProductDef);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(
+    @Param('id') id: string,
+  ): Promise<HttpException | productResponseDef> {
     return this.productsService.findOne(+id);
   }
 
