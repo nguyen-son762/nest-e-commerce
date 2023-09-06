@@ -10,6 +10,7 @@ import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()
     .setTitle('Ecommerce')
@@ -19,10 +20,10 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('docs', app, document);
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:4000'],
     methods: ['*'],
     credentials: true,
   });
