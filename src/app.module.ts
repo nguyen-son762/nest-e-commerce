@@ -23,39 +23,40 @@ import { UsersService } from './users/users.service';
 import * as redisStore from 'cache-manager-redis-store';
 @Module({
   imports: [
-    UsersModule,
+    // UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
-    TypeOrmModule.forFeature([User]),
-    CategoriesModule,
-    ProductsModule,
-    SizesModule,
-    ColorsModule,
-    ProductDetailsModule,
-    OrdersModule,
-    AuthModule,
-    UsersModule,
-    CacheModule.register({
-      ttl: 60,
-      max: 30 * 24 * 60 * 60,
-      isGlobal: true,
-      store: redisStore,
-      socket: {
-        host: 'localhost',
-        port: 6379,
-      },
-    }),
+    // TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
+    // TypeOrmModule.forFeature([User]),
+    // CategoriesModule,
+    // ProductsModule,
+    // SizesModule,
+    // ColorsModule,
+    // ProductDetailsModule,
+    // OrdersModule,
+    // AuthModule,
+    // UsersModule,
+    // // CacheModule.register({
+    // //   ttl: 60,
+    // //   max: 30 * 24 * 60 * 60,
+    // //   isGlobal: true,
+    // //   store: redisStore,
+    // //   socket: {
+    // //     host: 'localhost',
+    // //     port: 6379,
+    // //   },
+    // // }),
   ],
   controllers: [AppController],
-  providers: [AppService, UsersService],
+  // providers: [AppService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes({
-      path: '/orders/*',
-      method: RequestMethod.ALL,
-    });
+    // consumer.apply(AuthMiddleware).forRoutes({
+    //   path: '/orders/*',
+    //   method: RequestMethod.ALL,
+    // });\
+    consumer.apply().forRoutes({ path: 'api/*', method: RequestMethod.ALL });
   }
 }
